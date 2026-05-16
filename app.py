@@ -29,7 +29,7 @@ def load_data():
             "tests": int(r["Tests (/40)"]),
             "presence": float(r["Présence (/30)"]),
             "github": int(r["GitHub (/30)"]),
-            "total": float(r["Total (/90)"]),
+            "total": float(r["Total (/100)"]),
             "pct": r["Pourcentage"],
             "details": r.get("Détails du Score", ""),
             "matricule": r.get("Matricule", ""),
