@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Groupe R</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root {
+  --navy: #0a1628; --navy2: #0f1b3d; --navy3: #1a2a5e;
+  --gold: #d4a017; --green: #1b8a4b; --red: #c0392b;
+  --card-bg: rgba(255,255,255,0.96);
+  --shadow: 0 1px 4px rgba(0,0,0,.08);
+  --radius: 14px;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; }
+body { background:linear-gradient(135deg,#f0f2f5 0%,#e8ecf4 100%); color:#1a1a2e; min-height:100vh; }
+
+/* ===== HEADER ===== */
+.header {
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 40%,var(--navy3) 100%);
+  color:white; padding:20px 40px; display:flex; align-items:center; gap:18px;
+  box-shadow:0 4px 20px rgba(0,0,0,.25); position:relative; z-index:10;
+  animation:slideDown .5s ease-out;
+}
+@keyframes slideDown { from { transform:translateY(-100%); opacity:0; } to { transform:translateY(0); opacity:1; } }
+.logo {
+  width:48px; height:48px; background:linear-gradient(135deg,var(--gold),#f0c040);
+  border-radius:14px; display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:800; color:var(--navy); box-shadow:0 2px 10px rgba(212,160,23,.3);
+  animation:pulse 3s infinite;
+}
+@keyframes pulse { 0%,100%{box-shadow:0 2px 10px rgba(212,160,23,.3);} 50%{box-shadow:0 4px 20px rgba(212,160,23,.5);} }
+.header h1 { font-size:24px; font-weight:700; letter-spacing:.5px; }
+.header .subtitle { font-size:13px; opacity:.7; margin-top:2px; }
+.header-right { margin-left:auto; display:flex; align-items:center; gap:12px; }
+.badge {
+  background:rgba(255,255,255,.1); padding:7px 18px; border-radius:20px;
+  font-size:13px; border:1px solid rgba(255,255,255,.15); backdrop-filter:blur(10px);
+}
+.share-btn, .stop-btn {
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15);
+  color:white; padding:7px 16px; border-radius:20px; cursor:pointer;
+  font-size:13px; transition:.2s; backdrop-filter:blur(10px);
+}
+.share-btn:hover { background:rgba(255,255,255,.2); transform:scale(1.05); }
+.stop-btn:hover { background:rgba(212,57,43,.4); border-color:var(--red); }
+
+/* ===== CONTAINER ===== */
+.container { max-width:1400px; margin:0 auto; padding:28px 20px; animation:fadeIn .6s ease-out .2s both; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+/* ===== STATS CARDS ===== */
+.stats-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:28px;
+}
+.stat-card {
+  background:var(--card-bg); border-radius:var(--radius); padding:18px 14px;
+  box-shadow:var(--shadow); text-align:center; cursor:default;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s;
+  animation:cardIn .4s ease-out both; border:1px solid rgba(0,0,0,.04);
+}
+.stat-card:nth-child(1) { animation-delay:.05s; }
+.stat-card:nth-child(2) { animation-delay:.1s; }
+.stat-card:nth-child(3) { animation-delay:.15s; }
+.stat-card:nth-child(4) { animation-delay:.2s; }
+.stat-card:nth-child(5) { animation-delay:.25s; }
+.stat-card:nth-child(6) { animation-delay:.3s; }
+.stat-card:nth-child(7) { animation-delay:.35s; }
+@keyframes cardIn { from { opacity:0; transform:scale(.9) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+.stat-card:hover { transform:translateY(-4px) scale(1.02); box-shadow:0 8px 25px rgba(0,0,0,.12); }
+.stat-card .icon { font-size:22px; margin-bottom:4px; }
+.stat-card .value { font-size:26px; font-weight:700; letter-spacing:-.5px; }
+.stat-card .label { font-size:11px; color:#777; margin-top:3px; text-transform:uppercase; letter-spacing:.6px; font-weight:600; }
+.stat-card.gold .value { color:var(--gold); }
+.stat-card.green .value { color:var(--green); }
+.stat-card.red .value { color:var(--red); }
+.stat-card.blue .value { color:var(--navy3); }
+.stat-card.purple .value { color:#7b2d8e; }
+
+/* ===== CHARTS ===== */
+.charts-row { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:28px; }
+.chart-card {
+  background:var(--card-bg); border-radius:var(--radius); padding:16px;
+  box-shadow:var(--shadow); border:1px solid rgba(0,0,0,.04);
+  animation:fadeIn .6s ease-out .3s both; transition:.2s;
+}
+.chart-card:hover { box-shadow:0 4px 15px rgba(0,0,0,.1); }
+.chart-card h3 { font-size:14px; color:#444; margin-bottom:8px; font-weight:600; }
+.chart-card .plot { width:100%; height:360px; }
+
+/* ===== TABLE CARD ===== */
+.card {
+  background:var(--card-bg); border-radius:var(--radius); padding:20px 20px 16px;
+  box-shadow:var(--shadow); margin-bottom:30px; border:1px solid rgba(0,0,0,.04);
+  animation:fadeIn .6s ease-out .4s both;
+}
+.card-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+.card-top h2 { font-size:17px; font-weight:700; }
+
+@keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+.search-box {
+  padding:9px 16px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;
+  width:280px; outline:none; transition:.3s; background:#fafafa;
+}
+.search-box:focus {
+  border-color:var(--navy3); background:white; box-shadow:0 0 0 4px rgba(26,42,94,.1);
+  transform:scale(1.02);
+}
+
+.table-wrap { overflow-x:auto; border-radius:10px; }
+table { width:100%; border-collapse:separate; border-spacing:0; font-size:14px; }
+thead th {
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);
+  color:white; padding:12px 14px; text-align:left; font-weight:600;
+  font-size:12px; letter-spacing:.4px; text-transform:uppercase;
+  border:none; position:sticky; top:0; z-index:5;
+}
+thead th:first-child { border-radius:10px 0 0 0; }
+thead th:last-child { border-radius:0 10px 0 0; }
+tbody td { padding:11px 14px; border-bottom:1px solid #eee; transition:.15s; }
+tbody tr {
+  animation:rowIn .35s ease-out both; cursor:pointer;
+  transition:background .15s, transform .15s;
+}
+tbody tr:nth-child(1){animation-delay:.05s} tbody tr:nth-child(2){animation-delay:.08s}
+tbody tr:nth-child(3){animation-delay:.11s} tbody tr:nth-child(4){animation-delay:.14s}
+tbody tr:nth-child(5){animation-delay:.17s} tbody tr:nth-child(6){animation-delay:.20s}
+tbody tr:nth-child(7){animation-delay:.23s} tbody tr:nth-child(8){animation-delay:.26s}
+tbody tr:nth-child(9){animation-delay:.29s} tbody tr:nth-child(10){animation-delay:.32s}
+tbody tr:nth-child(11){animation-delay:.35s} tbody tr:nth-child(12){animation-delay:.38s}
+@keyframes rowIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+tbody tr:hover { background:#f0f2ff !important; transform:scale(1.002); }
+tbody tr:nth-child(even) { background:#f8f9fc; }
+
+.rank {
+  display:inline-flex; width:28px; height:28px; align-items:center; justify-content:center;
+  border-radius:50%; font-weight:700; font-size:12px;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.rank:hover { transform:scale(1.25); }
+.rank-1 { background:linear-gradient(135deg,var(--gold),#f0c040); color:white; box-shadow:0 2px 8px rgba(212,160,23,.4); }
+.rank-2 { background:linear-gradient(135deg,#b0b0b0,#d0d0d0); color:white; box-shadow:0 2px 8px rgba(176,176,176,.3); }
+.rank-3 { background:linear-gradient(135deg,#cd7f32,#e8a859); color:white; box-shadow:0 2px 8px rgba(205,127,50,.3); }
+.rank-other { background:#e8e8e8; color:#666; }
+
+.pct-badge { display:inline-block; padding:3px 12px; border-radius:10px; font-weight:600; font-size:12px; }
+.pct-high { background:#d4edda; color:#155724; }
+.pct-mid { background:#fff3cd; color:#856404; }
+.pct-low { background:#f8d7da; color:#721c24; }
+
+.score-bar-wrap {
+  width:130px; height:8px; background:#e9ecef; border-radius:4px; overflow:hidden;
+  display:inline-block; vertical-align:middle; margin-right:8px;
+}
+.score-bar-fill { height:100%; border-radius:4px; transition:width 1s cubic-bezier(.34,1.56,.64,1); }
+.bar-green { background:linear-gradient(90deg,#28a745,#34ce57); }
+.bar-orange { background:linear-gradient(90deg,#e67e22,#f39c12); }
+.bar-red { background:linear-gradient(90deg,#c0392b,#e74c3c); }
+
+.details-btn {
+  background:linear-gradient(135deg,var(--navy2),var(--navy3)); color:white;
+  padding:5px 14px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:500;
+  transition:.2s; border:none;
+}
+.details-btn:hover { transform:scale(1.06); box-shadow:0 2px 10px rgba(26,42,94,.3); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,.55);
+  z-index:999; align-items:center; justify-content:center;
+  backdrop-filter:blur(4px); animation:overlayIn .2s ease;
+}
+.modal-overlay.active { display:flex; }
+@keyframes overlayIn { from { opacity:0; } to { opacity:1; } }
+.modal {
+  background:white; border-radius:18px; padding:30px 28px; max-width:550px;
+  width:92%; max-height:80vh; overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.3); animation:modalIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalIn { from { opacity:0; transform:scale(.9) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.modal-header h3 { font-size:19px; font-weight:700; }
+.close-btn {
+  background:#f0f0f0; border:none; width:32px; height:32px; border-radius:50%;
+  font-size:18px; cursor:pointer; transition:.2s; display:flex; align-items:center; justify-content:center;
+}
+.close-btn:hover { background:#e0e0e0; transform:rotate(90deg); }
+
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.detail-item { background:#f8f9fc; border-radius:10px; padding:12px 14px; }
+.detail-item.full { grid-column:1/-1; }
+.detail-item .lbl { font-size:11px; color:#888; text-transform:uppercase; letter-spacing:.4px; font-weight:600; }
+.detail-item .val { font-size:16px; font-weight:600; margin-top:2px; color:#1a1a2e; }
+.detail-item .val.score-high { color:var(--green); }
+.detail-item .val.score-mid { color:#e67e22; }
+.detail-item .val.score-low { color:var(--red); }
+.details-text {
+  background:#f8f9fc; border-radius:10px; padding:14px; font-size:13px;
+  line-height:1.6; color:#444; margin-top:8px;
+}
+
+/* ===== SHARE TOAST ===== */
+.toast {
+  position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(80px);
+  background:var(--navy); color:white; padding:12px 28px; border-radius:12px;
+  font-size:14px; opacity:0; transition:all .4s cubic-bezier(.34,1.56,.64,1);
+  z-index:1000; box-shadow:0 4px 20px rgba(0,0,0,.2); pointer-events:none;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){ .charts-row { grid-template-columns:1fr; } .stats-grid { grid-template-columns:repeat(3,1fr); } .detail-grid { grid-template-columns:1fr; } }
+@media(max-width:600px){
+  .header { padding:15px 18px; flex-wrap:wrap; }
+  .header-right { width:100%; justify-content:flex-end; }
+  .stats-grid { grid-template-columns:repeat(2,1fr); }
+  .search-box { width:100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">GR</div>
+  <div>
+    <h1>Dashboard Groupe R</h1>
+    <div class="subtitle">{{ stats.count }} participants · Classement des scores</div>
+  </div>
+  <div class="header-right">
+    <div class="badge">⭐ {{ stats.moyenne }}/90</div>
+    <button class="share-btn" onclick="copyLink()">📋 Copier le lien</button>
+    <button class="stop-btn" onclick="showStopModal()">⏻ Éteindre</button>
+  </div>
+</div>
+
+<div class="container">
+
+  {% set pcts = namespace(mid=0, high=0, low=0) %}
+  {% for d in data %}
+    {% if d.total >= 80 %}{% set pcts.high = pcts.high + 1 %}
+    {% elif d.total >= 60 %}{% set pcts.mid = pcts.mid + 1 %}
+    {% else %}{% set pcts.low = pcts.low + 1 %}{% endif %}
+  {% endfor %}
+
+  <div class="stats-grid">
+    <div class="stat-card gold"><div class="icon">📊</div><div class="value">{{ stats.moyenne }}</div><div class="label">Moyenne /90</div></div>
+    <div class="stat-card blue"><div class="icon">🏆</div><div class="value">{{ stats.max }}</div><div class="label">Meilleur score</div></div>
+    <div class="stat-card red"><div class="icon">⬇️</div><div class="value">{{ stats.min }}</div><div class="label">Plus faible</div></div>
+    <div class="stat-card purple"><div class="icon">📈</div><div class="value">{{ stats.median }}</div><div class="label">Médiane</div></div>
+    <div class="stat-card green"><div class="icon">🟢</div><div class="value">{{ pcts.high }}</div><div class="label">Excellent ≥80</div></div>
+    <div class="stat-card gold"><div class="icon">🟡</div><div class="value">{{ pcts.mid }}</div><div class="label">Moyen 60-79</div></div>
+    <div class="stat-card red"><div class="icon">🔴</div><div class="value">{{ pcts.low }}</div><div class="label">Insuffisant &lt;60</div></div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card"><h3>📊 Scores individuels</h3><div id="chartBar" class="plot"></div></div>
+    <div class="chart-card"><h3>🧩 Répartition des niveaux</h3><div id="chartPie" class="plot"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-top">
+      <h2>🏆 Classement des membres</h2>
+      <input class="search-box" id="search" type="text" placeholder="🔍 Rechercher un participant..." oninput="filterTable()">
+    </div>
+    <div class="table-wrap">
+      <table id="rankTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nom</th>
+            <th>Tests (/40)</th>
+            <th>Présence (/30)</th>
+            <th>GitHub (/30)</th>
+            <th>Total /90</th>
+            <th>%</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in data|sort(attribute='total', reverse=True) %}
+          {% set idx = loop.index %}
+          {% set cls = 'pct-high' if d.total >= 80 else ('pct-mid' if d.total >= 60 else 'pct-low') %}
+          {% set bar_cls = 'bar-green' if d.total >= 80 else ('bar-orange' if d.total >= 60 else 'bar-red') %}
+          {% set rank_cls = 'rank-1' if idx==1 else ('rank-2' if idx==2 else ('rank-3' if idx==3 else 'rank-other')) %}
+          <tr class="participant-row" data-name="{{ d.nom|lower }}" onclick="showDetails('{{ d.nom|e }}')">
+            <td><span class="rank {{ rank_cls }}">{{ idx }}</span></td>
+            <td><strong style="font-size:14px;">{{ d.nom }}</strong></td>
+            <td>{{ d.tests }}</td>
+            <td>{{ d.presence }}</td>
+            <td>{{ d.github }}</td>
+            <td>
+              <div class="score-bar-wrap"><div class="score-bar-fill {{ bar_cls }}" style="width:{{ d.total / 90 * 100 }}%"></div></div>
+              <strong>{{ d.total }}</strong>
+            </td>
+            <td><span class="pct-badge {{ cls }}">{{ d.pct }}</span></td>
+            <td><button class="details-btn" onclick="event.stopPropagation();showDetails('{{ d.nom|e }}')">Détails</button></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalName"></h3>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Shutdown Modal -->
+<div class="modal-overlay" id="stopOverlay" onclick="if(event.target===this)closeStopModal()">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <h3>⏻ Éteindre le dashboard</h3>
+      <button class="close-btn" onclick="closeStopModal()">✕</button>
+    </div>
+    <p style="margin-bottom:14px;color:#666;">Entrez le mot de passe pour fermer le serveur.</p>
+    <input id="stopPwd" type="password" placeholder="Mot de passe" style="width:100%;padding:10px 14px;border:2px solid #ddd;border-radius:10px;font-size:15px;outline:none;margin-bottom:12px;" onkeydown="if(event.key==='Enter')doShutdown()">
+    <div id="stopError" style="color:var(--red);font-size:13px;margin-bottom:8px;display:none;">Mot de passe incorrect</div>
+    <button onclick="doShutdown()" style="width:100%;padding:10px;background:linear-gradient(135deg,var(--red),#e74c3c);color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:.2s;">Éteindre le serveur</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = {{ data|tojson }};
+const stats = {{ stats|tojson }};
+
+// ===== BAR CHART =====
+const sortedBar = [...DATA].sort((a,b)=>b.total-a.total);
+const colors = sortedBar.map(d => d.total>=80?'#28a745':d.total>=60?'#e67e22':'#c0392b');
+Plotly.newPlot('chartBar', [{
+  x: sortedBar.map(d => d.nom),
+  y: sortedBar.map(d => d.total),
+  type: 'bar',
+  marker: { color:colors, line:{color:colors.map(c=>c),width:1} },
+  text: sortedBar.map(d => d.pct),
+  textposition: 'outside',
+  textfont: {size:11},
+  hovertemplate: '<b>%{x}</b><br>Total: %{y}/90<br>%{text}<extra></extra>'
+}], {
+  margin: { l:45, r:15, t:5, b:100 },
+  plot_bgcolor: 'rgba(0,0,0,0)',
+  paper_bgcolor: 'rgba(0,0,0,0)',
+  font: { family:'Segoe UI,sans-serif', size:11 },
+  yaxis: { range:[0,100], gridcolor:'#eee', title:'Score /90' },
+  xaxis: { tickangle:-35, tickfont:{size:10} }
+}, { responsive:true, displayModeBar:false });
+
+// ===== PIE CHART =====
+const cats = [];
+{% set remaining = data|length - pcts.high - pcts.mid - pcts.low %}
+{% if pcts.high > 0 %}cats.push({label:'Excellent (≥80)', count:{{ pcts.high }}});{% endif %}
+{% if pcts.mid > 0 %}cats.push({label:'Moyen (60-79)', count:{{ pcts.mid }}});{% endif %}
+{% if pcts.low > 0 %}cats.push({label:'Insuffisant (<60)', count:{{ pcts.low }}});{% endif %}
+Plotly.newPlot('chartPie', [{
+  values: cats.map(c=>c.count),
+  labels: cats.map(c=>c.label),
+  type: 'pie',
+  marker: { colors: ['#28a745','#e67e22','#c0392b'] },
+  textinfo: 'label+percent',
+  textposition: 'outside',
+  hovertemplate: '<b>%{label}</b><br>%{value} participant(s)<extra></extra>'
+}], {
+  margin: { l:10, r:10, t:5, b:30 },
+  showlegend: false,
+  plot_bgcolor: 'rgba(0,0,0,0)',
+  paper_bgcolor: 'rgba(0,0,0,0)',
+  font: { family:'Segoe UI,sans-serif', size:13 }
+}, { responsive:true, displayModeBar:false });
+
+// ===== FILTER =====
+function filterTable() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  document.querySelectorAll('.participant-row').forEach(row => {
+    row.style.display = !q || row.dataset.name.includes(q) ? '' : 'none';
+  });
+}
+
+// ===== DETAIL MODAL =====
+function showDetails(name) {
+  const d = DATA.find(x => x.nom === name);
+  if (!d) return;
+  document.getElementById('modalName').textContent = d.nom;
+  const scoreCls = d.total>=80?'score-high':d.total>=60?'score-mid':'score-low';
+  let html = '<div class="detail-grid">';
+  html += '<div class="detail-item"><div class="lbl">Tests (/40)</div><div class="val '+scoreCls+'">'+d.tests+'</div></div>';
+  html += '<div class="detail-item"><div class="lbl">Présence (/30)</div><div class="val '+scoreCls+'">'+d.presence+'</div></div>';
+  html += '<div class="detail-item"><div class="lbl">GitHub (/30)</div><div class="val '+scoreCls+'">'+d.github+'</div></div>';
+  html += '<div class="detail-item"><div class="lbl">Total (/90)</div><div class="val '+scoreCls+'">'+d.total+'</div></div>';
+  html += '<div class="detail-item"><div class="lbl">Pourcentage</div><div class="val '+scoreCls+'">'+d.pct+'</div></div>';
+  html += '<div class="detail-item"><div class="lbl">Email</div><div class="val" style="font-size:13px;font-weight:400;">'+(d.email||'—')+'</div></div>';
+  if (d.matricule) html += '<div class="detail-item full"><div class="lbl">Matricule</div><div class="val">'+d.matricule+'</div></div>';
+  html += '<div class="detail-item full"><div class="lbl">Détail complet</div><div class="details-text">'+(d.details||'Aucun détail')+'</div></div>';
+  html += '</div>';
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+
+// ===== SHUTDOWN =====
+function showStopModal() { document.getElementById('stopOverlay').classList.add('active'); document.getElementById('stopError').style.display='none'; document.getElementById('stopPwd').value=''; }
+function closeStopModal() { document.getElementById('stopOverlay').classList.remove('active'); }
+
+function doShutdown() {
+  const pwd = document.getElementById('stopPwd').value;
+  fetch('/shutdown', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({password:pwd})
+  }).then(r=>r.json()).then(d=>{
+    if(d.ok){ showToast('✅ Serveur éteint !'); setTimeout(()=>{document.body.innerHTML='<div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:sans-serif;font-size:20px;color:#666;">✅ Dashboard éteint</div>';},500); }
+    else { document.getElementById('stopError').style.display='block'; }
+  }).catch(()=>{ showToast('✅ Serveur éteint'); location.reload(); });
+}
+
+// ===== COPY LINK =====
+function copyLink() {
+  const url = window.location.href;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(()=>showToast('📋 Lien copié dans le presse-papiers !'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('📋 Lien copié !');
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
