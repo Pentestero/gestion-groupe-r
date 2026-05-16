@@ -18,18 +18,33 @@ CSV_PATH = "Data/responses.csv"
 SCORE_CAP = 100
 
 ADJUSTMENTS = {
-    "POUHO AMBEP": 60,
-    "DONGMO TADJIOFOUET": 52,
-    "DONGMO GIRELLE": 79,
-    "BIKO": 80,
+    "POUHO AMBEP": 80,
+    "DONGMO TADJIOFOUET": 65,
+    "DONGMO GIRELLE": 85,
+    "BIKO": 86.60,
     "ARTHUR": 89.55,
     "DUPONT": 89.55,
     "GAMANI": 89.55,
     "YEMELI": 89.5,
     "NOUMEDEM": 89.0,
-    "MEHITANG": 76.12,
-    "AZABAZE": 79.48,
+    "MEHITANG": 83,
+    "AZABAZE": 85,
     "SIKATI": 90,
+    "TARH-YENGUE": 55,
+}
+
+PRESENCE_OVERRIDES = {
+    "BIKO": 7,
+    "AZABAZE": 7,
+    "MEHITANG": 6,
+    "POUHO AMBEP": 6,
+    "DONGMO TADJIOFOUET": 5,
+    "TARH-YENGUE": 3,
+}
+
+GITHUB_OVERRIDES = {
+    "AZABAZE": 25,
+    "DONGMO GIRELLE": 25,
 }
 
 COLUMN_ALIASES = {
@@ -338,11 +353,24 @@ def compute_scores(df, token=None):
         if presences > MAX_SEANCES:
             warn(nom, f"Pr\u00e9sence ({presences}) > max {MAX_SEANCES}, ramen\u00e9e \u00e0 {MAX_SEANCES}.")
             presences = MAX_SEANCES
+
+        for key, val in PRESENCE_OVERRIDES.items():
+            if key.upper() in nom.upper():
+                presences = val
+                break
+
         score_presence = round((presences / MAX_SEANCES) * POIDS_PRESENCE, 2)
         detail_presence = f"Pr\u00e9sence: {presences}/{MAX_SEANCES} \u00d7 {POIDS_PRESENCE} pts = {score_presence}/{POIDS_PRESENCE}"
 
         github = safe_str(row.get("github", ""))
         score_github, detail_github = verify_github_via_api(github, token)
+
+        for key, val in GITHUB_OVERRIDES.items():
+            if key.upper() in nom.upper():
+                score_github = val
+                detail_github = f"GitHub ajust\u00e9: {score_github}/{POIDS_GITHUB}"
+                break
+
         if token:
             time.sleep(0.3)
         if score_github <= 15:
