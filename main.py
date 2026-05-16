@@ -22,13 +22,14 @@ ADJUSTMENTS = {
     "DONGMO TADJIOFOUET": 52,
     "DONGMO GIRELLE": 79,
     "BIKO": 80,
-    "ARTHUR": 86.5,
-    "DUPONT": 89.5,
+    "ARTHUR": 89.55,
+    "DUPONT": 89.55,
     "GAMANI": 89.55,
     "YEMELI": 89.55,
     "NOUMEDEM": 89.55,
     "MEHITANG": 76.12,
     "AZABAZE": 79.48,
+    "SIKATI": 90,
 }
 
 COLUMN_ALIASES = {
