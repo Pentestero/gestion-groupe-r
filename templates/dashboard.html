@@ -210,12 +210,49 @@ tbody tr:nth-child(even) { background:#f8f9fc; }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
 /* ===== RESPONSIVE ===== */
-@media(max-width:900px){ .charts-row { grid-template-columns:1fr; } .stats-grid { grid-template-columns:repeat(3,1fr); } .detail-grid { grid-template-columns:1fr; } }
-@media(max-width:600px){
-  .header { padding:15px 18px; flex-wrap:wrap; }
-  .header-right { width:100%; justify-content:flex-end; }
-  .stats-grid { grid-template-columns:repeat(2,1fr); }
-  .search-box { width:100%; }
+@media(max-width:900px){
+  .charts-row { grid-template-columns:1fr; }
+  .stats-grid { grid-template-columns:repeat(3,1fr); }
+  .detail-grid { grid-template-columns:1fr; }
+  .chart-card .plot { height:300px; }
+}
+@media(max-width:700px){
+  .header { padding:14px 16px; flex-wrap:wrap; gap:8px; }
+  .header h1 { font-size:18px; }
+  .header-right { width:100%; justify-content:center; flex-wrap:wrap; }
+  .badge { font-size:12px; padding:5px 12px; }
+  .share-btn, .stop-btn { font-size:12px; padding:5px 12px; }
+  .logo { width:36px; height:36px; font-size:16px; }
+  .stats-grid { grid-template-columns:repeat(2,1fr); gap:8px; }
+  .stat-card { padding:12px 8px; }
+  .stat-card .value { font-size:20px; }
+  .stat-card .label { font-size:10px; }
+  .container { padding:16px 10px; }
+  .card { padding:14px; }
+  .card-top h2 { font-size:15px; }
+  .search-box { width:100%; font-size:13px; padding:8px 12px; }
+  table { font-size:12px; }
+  thead th, tbody td { padding:7px 6px; }
+  tbody td:nth-child(2) strong { font-size:12px !important; }
+  .rank { width:22px; height:22px; font-size:11px; }
+  .score-bar-wrap { width:60px; }
+  .pct-badge { font-size:11px; padding:2px 8px; }
+  .details-btn { font-size:11px; padding:3px 8px; }
+  .chart-card .plot { height:250px; }
+  .modal { padding:20px 16px; }
+  .detail-item { padding:8px 10px; }
+  .detail-item .val { font-size:14px; }
+}
+@media(max-width:450px){
+  .stats-grid { grid-template-columns:1fr 1fr; gap:6px; }
+  .stat-card .value { font-size:17px; }
+  thead th { font-size:10px; }
+  tbody td { font-size:11px; padding:6px 4px; }
+  .score-bar-wrap { width:40px; }
+  .chart-card .plot { height:200px; }
+  .header h1 { font-size:16px; }
+  .header .subtitle { font-size:11px; }
+  .modal { max-width:100%; border-radius:12px; margin:10px; }
 }
 </style>
 </head>
@@ -228,7 +265,7 @@ tbody tr:nth-child(even) { background:#f8f9fc; }
     <div class="subtitle">{{ stats.count }} participants · Classement des scores</div>
   </div>
   <div class="header-right">
-    <div class="badge">⭐ {{ stats.moyenne }}/90</div>
+    <div class="badge">⭐ {{ stats.moyenne }}/100</div>
     <button class="share-btn" onclick="copyLink()">📋 Copier le lien</button>
     <button class="stop-btn" onclick="showStopModal()">⏻ Éteindre</button>
   </div>
@@ -244,7 +281,7 @@ tbody tr:nth-child(even) { background:#f8f9fc; }
   {% endfor %}
 
   <div class="stats-grid">
-    <div class="stat-card gold"><div class="icon">📊</div><div class="value">{{ stats.moyenne }}</div><div class="label">Moyenne /90</div></div>
+    <div class="stat-card gold"><div class="icon">📊</div><div class="value">{{ stats.moyenne }}</div><div class="label">Moyenne /100</div></div>
     <div class="stat-card blue"><div class="icon">🏆</div><div class="value">{{ stats.max }}</div><div class="label">Meilleur score</div></div>
     <div class="stat-card red"><div class="icon">⬇️</div><div class="value">{{ stats.min }}</div><div class="label">Plus faible</div></div>
     <div class="stat-card purple"><div class="icon">📈</div><div class="value">{{ stats.median }}</div><div class="label">Médiane</div></div>
@@ -272,7 +309,7 @@ tbody tr:nth-child(even) { background:#f8f9fc; }
             <th>Tests (/40)</th>
             <th>Présence (/30)</th>
             <th>GitHub (/30)</th>
-            <th>Total /90</th>
+            <th>Total /100</th>
             <th>%</th>
             <th></th>
           </tr>
@@ -290,7 +327,7 @@ tbody tr:nth-child(even) { background:#f8f9fc; }
             <td>{{ d.presence }}</td>
             <td>{{ d.github }}</td>
             <td>
-              <div class="score-bar-wrap"><div class="score-bar-fill {{ bar_cls }}" style="width:{{ d.total / 90 * 100 }}%"></div></div>
+              <div class="score-bar-wrap"><div class="score-bar-fill {{ bar_cls }}" style="width:{{ d.total }}%"></div></div>
               <strong>{{ d.total }}</strong>
             </td>
             <td><span class="pct-badge {{ cls }}">{{ d.pct }}</span></td>
@@ -346,13 +383,13 @@ Plotly.newPlot('chartBar', [{
   text: sortedBar.map(d => d.pct),
   textposition: 'outside',
   textfont: {size:11},
-  hovertemplate: '<b>%{x}</b><br>Total: %{y}/90<br>%{text}<extra></extra>'
+  hovertemplate: '<b>%{x}</b><br>Total: %{y}/100<br>%{text}<extra></extra>'
 }], {
   margin: { l:45, r:15, t:5, b:100 },
   plot_bgcolor: 'rgba(0,0,0,0)',
   paper_bgcolor: 'rgba(0,0,0,0)',
   font: { family:'Segoe UI,sans-serif', size:11 },
-  yaxis: { range:[0,100], gridcolor:'#eee', title:'Score /90' },
+  yaxis: { range:[0,100], gridcolor:'#eee', title:'Score /100' },
   xaxis: { tickangle:-35, tickfont:{size:10} }
 }, { responsive:true, displayModeBar:false });
 
@@ -396,7 +433,7 @@ function showDetails(name) {
   html += '<div class="detail-item"><div class="lbl">Tests (/40)</div><div class="val '+scoreCls+'">'+d.tests+'</div></div>';
   html += '<div class="detail-item"><div class="lbl">Présence (/30)</div><div class="val '+scoreCls+'">'+d.presence+'</div></div>';
   html += '<div class="detail-item"><div class="lbl">GitHub (/30)</div><div class="val '+scoreCls+'">'+d.github+'</div></div>';
-  html += '<div class="detail-item"><div class="lbl">Total (/90)</div><div class="val '+scoreCls+'">'+d.total+'</div></div>';
+  html += '<div class="detail-item"><div class="lbl">Total (/100)</div><div class="val '+scoreCls+'">'+d.total+'</div></div>';
   html += '<div class="detail-item"><div class="lbl">Pourcentage</div><div class="val '+scoreCls+'">'+d.pct+'</div></div>';
   html += '<div class="detail-item"><div class="lbl">Email</div><div class="val" style="font-size:13px;font-weight:400;">'+(d.email||'—')+'</div></div>';
   if (d.matricule) html += '<div class="detail-item full"><div class="lbl">Matricule</div><div class="val">'+d.matricule+'</div></div>';
