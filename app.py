@@ -19,20 +19,27 @@ def get_local_ip():
         return "127.0.0.1"
 
 
+def _clean(val):
+    import math
+    if isinstance(val, float) and math.isnan(val):
+        return ""
+    return val
+
 def load_data():
     df = pd.read_excel(EXCEL_PATH)
+    df = df.fillna("")
     data = []
     for _, r in df.iterrows():
         data.append({
-            "nom": r["Nom"],
-            "email": r.get("Email", ""),
-            "tests": int(r["Tests (/40)"]),
-            "presence": float(r["Présence (/30)"]),
-            "github": int(r["GitHub (/30)"]),
-            "total": float(r["Total (/100)"]),
-            "pct": r["Pourcentage"],
-            "details": r.get("Détails du Score", ""),
-            "matricule": r.get("Matricule", ""),
+            "nom": str(_clean(r["Nom"])),
+            "email": str(_clean(r.get("Email", ""))),
+            "tests": int(float(_clean(r["Tests (/40)"]))),
+            "presence": float(_clean(r["Présence (/30)"])),
+            "github": int(float(_clean(r["GitHub (/30)"]))),
+            "total": float(_clean(r["Total (/100)"])),
+            "pct": str(_clean(r["Pourcentage"])),
+            "details": str(_clean(r.get("Détails du Score", ""))),
+            "matricule": str(_clean(r.get("Matricule", ""))),
         })
     return data
 
