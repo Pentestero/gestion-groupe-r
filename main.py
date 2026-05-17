@@ -572,6 +572,8 @@ def export_pdf(resultats, data_horodateur=""):
                                spaceAfter=2, textColor=TEXT_DARK))
     name_style = ParagraphStyle("CellName", parent=styles["Normal"], fontSize=7,
                                  alignment=TA_CENTER, leading=8.5, textColor=TEXT_DARK)
+    mat_style = ParagraphStyle("CellMat", parent=styles["Normal"], fontSize=5.5,
+                                alignment=TA_CENTER, leading=7, textColor=TEXT_DARK)
     styles.add(ParagraphStyle("Footer", parent=styles["Normal"], fontSize=7.5,
                                alignment=TA_CENTER, textColor=colors.HexColor('#999999'),
                                spaceBefore=18))
@@ -615,7 +617,7 @@ def export_pdf(resultats, data_horodateur=""):
         table_data.append([
             str(i),
             Paragraph(r["nom"] + leader_tag, name_style),
-            r["matricule"] if r["matricule"] else "-",
+            Paragraph(r["matricule"] if r["matricule"] else "-", mat_style),
             str(r["score_test"]),
             str(r["score_presence"]),
             str(r["score_github"]),
@@ -623,7 +625,7 @@ def export_pdf(resultats, data_horodateur=""):
             label,
         ])
 
-    col_widths = [0.65*cm, 5.5*cm, 1.0*cm, 2.0*cm, 2.4*cm, 2.0*cm, 1.7*cm, 2.5*cm]
+    col_widths = [0.55*cm, 4.8*cm, 2.2*cm, 1.6*cm, 1.8*cm, 1.6*cm, 1.3*cm, 2.0*cm]
 
     table = Table(table_data, colWidths=col_widths, repeatRows=1)
     style_cmds = [
