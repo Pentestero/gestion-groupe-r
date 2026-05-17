@@ -47,6 +47,22 @@ GITHUB_OVERRIDES = {
     "DONGMO GIRELLE": 25,
 }
 
+MATRICULES = {
+    "SIKATI": "CM-UDS-22SCI0756",
+    "DONGMO GIRELLE": "CM-UDS23SCI0763",
+    "YEMELI": "CM- UDS- 23SCIO733",
+    "DONGMO TADJIOFOUET": "CM-UDS22SCI0440",
+    "NOUMEDEM": "CM-UDS-25SCI0833",
+    "GAMANI": "CM-UDS23SCI0292",
+    "POUHO AMBEP": "Cm-uds-22sci0176",
+    "DUPONT": "CM-UDS-23SCI0483",
+    "AZABAZE": "CM-UDS-20SCI0186",
+    "BIKO": "CM-UDS-25SCI0849",
+    "ARTHUR": "CM-UDS-25SCI0763",
+    "MEHITANG": "CM-UDS-23SCI1130",
+    "TARH-YENGUE": "CM-UDS22SCI0923",
+}
+
 COLUMN_ALIASES = {
     "nom complet": "nom",
     "nom": "nom",
@@ -385,10 +401,16 @@ def compute_scores(df, token=None):
                 needs_adjust = adj_val
                 break
 
+        matricule = ""
+        for mat_key, mat_val in MATRICULES.items():
+            if mat_key.upper() in nom.upper():
+                matricule = mat_val
+                break
+
         resultats.append({
             "nom": nom,
             "email": email,
-            "matricule": "",
+            "matricule": matricule,
             "nb_tests": nb_tests,
             "tests_detail": test_list,
             "presences_brut": presences,
